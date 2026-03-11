@@ -99,6 +99,34 @@
       display: none;
     }
 
+    .output-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .output-header p {
+      margin: 0;
+    }
+
+    .copy-btn {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 1.1rem;
+      line-height: 1;
+      padding: 4px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .copy-btn:hover {
+      color: var(--accent);
+      background: transparent;
+    }
+
     textarea {
       width: 100%;
       min-height: 320px;
@@ -202,7 +230,10 @@
     </div>
 
     <div class="card">
-      <p><strong>Output</strong></p>
+      <div class="output-header">
+        <p><strong>Output</strong></p>
+        <button id="copyBtn" class="copy-btn" type="button" aria-label="Copy BibTeX" title="Copy BibTeX">📋</button>
+      </div>
       <textarea id="output" placeholder="Your BibTeX will appear here..."></textarea>
     </div>
 
@@ -218,6 +249,7 @@
     const convertBtn = document.getElementById('convertBtn');
     const downloadBtn = document.getElementById('downloadBtn');
     const clearBtn = document.getElementById('clearBtn');
+    const copyBtn = document.getElementById('copyBtn');
     const output = document.getElementById('output');
     const status = document.getElementById('status');
     const selectedFiles = document.getElementById('selectedFiles');
@@ -319,6 +351,27 @@
         console.error(err);
         showStatus(`Something went wrong while reading or converting the file(s): ${err.message}`);
       }
+    });
+    copyBtn.addEventListener('click', async () => {
+      if (!output.value.trim()) return;
+
+      const originalSymbol = '📋';
+      const copiedSymbol = '✓';
+
+      try {
+        await navigator.clipboard.writeText(output.value);
+      } catch (err) {
+        output.select();
+        output.setSelectionRange(0, output.value.length);
+        document.execCommand('copy');
+      }
+
+      copyBtn.textContent = copiedSymbol;
+      showStatus('BibTeX copied to clipboard.');
+
+      setTimeout(() => {
+        copyBtn.textContent = originalSymbol;
+      }, 1200);
     });
 
     downloadBtn.addEventListener('click', () => {
